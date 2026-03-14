@@ -1,5 +1,5 @@
 from g2p_en import G2p
-from models import Nucleus, Word, Line, Verse
+from .models import Nucleus, Word, Line, Verse
 import string
 import re 
 
@@ -9,7 +9,7 @@ g2p = G2p()
 
 def clean_word(text):
     """Remove punctuation and lowercase the word."""
-    return re.sub(r'[^\w\s]', '', text).lower()
+    return re.sub(r'[^\w\s]', '', text).lower().strip()
 
 def extract_nuclei(word_text, line_id, word_id, is_last_word):
     """Transform a word into a list of Nucleus objects."""
@@ -20,7 +20,7 @@ def extract_nuclei(word_text, line_id, word_id, is_last_word):
     vowels = [v for v in phonemes if v[-1].isdigit()]
 
     # 3. Create list of vowels for each word
-    nuclei = [Nucleus(phonemes = v, 
+    nuclei = [Nucleus(phoneme = v, 
                     stress = int(v[-1]),
                     line_id = line_id,
                     word_id = word_id,
@@ -38,7 +38,7 @@ def process_line(line_text, line_id):
     """Transform a raw line into a Line object containing Words."""  
     # 1. Split line_text into words and create line object
     words = line_text.split()
-    line_obj = Line(line_text = line_text,
+    line_obj = Line(text = line_text,
                     line_id = line_id)
 
     # 2. For each word: 
@@ -72,7 +72,8 @@ def process_verse(raw_text, artist="Unknown"):
     verse_obj = Verse(metadata = {"artist" : artist}) #TODO: Gestion of verese_id and other metadata
     line_id = 0
     for line_text in lines:
-        if line_text.strip() == "":
+        line_text = line_text.strip()
+        if line_text == "":
             continue
         verse_obj.lines.append(process_line(line_text, line_id))
         line_id += 1
