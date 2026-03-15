@@ -1,2 +1,7 @@
 # TODO:
-* implement a new approach shifting from nucleus to syllable as the fundamental unit for rhyme analysis.
+* add a class **Syllable**
+* replace `nuclei` by `syllables` list in class `Word` 
+* implment `split_into_syllables(phonemes: list[str]) -> list[list[str]]`
+
+
+
