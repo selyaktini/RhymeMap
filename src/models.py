@@ -4,6 +4,14 @@ from dataclasses import dataclass, field
 # The field() function allows customization of individual attributes (for exemple default values, default_factory) 
 
 @dataclass
+class Syllable:
+    text: str
+    nuclei: list[Nucleus] = field(default_factory=list) # List of nuclei that th Syllable contain 
+    word_id: int # Index of row (0, 1, ...)
+    syllable_label: str = ""
+    is_terminal: bool = False
+
+@dataclass
 class Nucleus:
     """Represents a stressed vowel (the core of the rhyme)."""
     phoneme: str      # ex: "OW1"
