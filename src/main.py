@@ -39,7 +39,7 @@ def run_rhyme_mapper():
     
     for line in verse.lines:
         # Displaying the rhyme group and the line
-        print(f"[{line.rhyme_label}] {line.text}")
+        print(f"[{line.rhyme_label}: {line.words[-1].nuclei[-1].phoneme}] {line.text}")
 
 if __name__ == "__main__":
     run_rhyme_mapper()
