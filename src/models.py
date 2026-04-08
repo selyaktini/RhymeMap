@@ -5,11 +5,12 @@ from dataclasses import dataclass, field
 
 @dataclass
 class Syllable:
-    text: str
-    nuclei: list[Nucleus] = field(default_factory=list) # List of nuclei that th Syllable contain 
-    word_id: int # Index of row (0, 1, ...)
-    syllable_label: str = ""
+    text: str         # Text of the syllable (ex: ba or na  (for banana))
+    nucleus: str      # Text of the nucleus 
+    coda: list[str]   # List of consonants (for exemple pock dans pocket coda = ["K"] pour et c est ["T"])
     is_terminal: bool = False
+    rhyme_label: str = ""
+
 
 @dataclass
 class Nucleus:
@@ -24,6 +25,7 @@ class Nucleus:
 class Word:
     """Stores a word and its associated vowel nuclei."""
     text: str
+    syllables: list[Syllable] = field(default_factory=list)
     nuclei: list[Nucleus] = field(default_factory=list)
     line_id: int = 0
     word_id: int = 0       # To match Nucleus.word_id
