@@ -1,7 +1,8 @@
 from g2p_en import G2p
-from .models import Nucleus, Word, Line, Verse
+from .models import Syllable, Nucleus, Word, Line, Verse
 import string
-import re 
+import re
+from syllabify import syllabify
 
 
 # Initialize G2p once at module level to avoid reloading it constantly
@@ -33,32 +34,27 @@ def extract_nuclei(word_text, line_id, word_id, is_last_word):
     
     return nuclei      # Return list[Nucleus]
 
-
 def process_line(line_text, line_id):
-    """Transform a raw line into a Line object containing Words."""  
-    # 1. Split line_text into words and create line object
     words = line_text.split()
-    line_obj = Line(text = line_text,
-                    line_id = line_id)
+    line_obj = Line(text=line_text, line_id=line_id)
 
-    # 2. For each word: 
-    #    - Clean it
-    #    - Create Word object
-    #    - Get nuclei
-    i = 0
-    for current_word in words:
-        i += 1
-        cleaned = clean_word(current_word)
-        word_obj = Word(text=cleaned, line_id=line_id, word_id=i-1)
-        word_obj.is_last_word = i == len(words)
-        word_obj.nuclei = extract_nuclei(cleaned, 
-                                              line_id, 
-                                              word_id = i - 1,
-                                              is_last_word = (i == len(words)))
+    for i, raw_word in enumerate(words):
+        cleaned = clean_word(raw_word)
+        nuclei = extract_nuclei(cleaned, line_id, i, i == len(words)-1)
+        syllables = extract_syllables(cleaned, line_id, i, i == len(words)-1)
 
+        word_obj = Word(
+            text=cleaned,
+            syllables=syllables,
+            nuclei=nuclei,
+            line_id=line_id,
+            word_id=i,
+            is_last_word=(i == len(words)-1)
+        )
         line_obj.words.append(word_obj)
-        
-    return line_obj     # Return Line object
+
+    return line_obj
+
 
 def process_verse(raw_text, artist="Unknown"):
     """Entry point: Transforms raw lyrics into a Verse object."""
@@ -79,6 +75,141 @@ def process_verse(raw_text, artist="Unknown"):
         line_id += 1
 
     return verse_obj      # Return Verse object
+
+
+# ------------------------------------ end of old implementation --------- 
+
+# Divide a word into syllables (very approximate)
+def split_word_text(word_text, num_syllables):
+    if num_syllables <= 1:  # If just one syllable return the singleton
+        return [word_text]
+    length = len(word_text)  # else divide into equal (+-1) syllables 
+    step = length / num_syllables
+    parts = []
+    for i in range(num_syllables):
+        start = int(i * step)
+        end = int((i + 1) * step) if i < num_syllables - 1 else length
+        parts.append(word_text[start:end])
+    return parts
+
+
+
+# This function is to call in case syllabify return an exception
+# It divide phonemes of a word into syllables just with vowels
+# each vowel is the start of a syllable and next consonants are the next elements(approximatif approach)
+# Even if its very approximate but functional for most words 
+# returns Syllable object 
+def heuristic_syllables(phonemes, word_text):
+    syll_phon = []
+    current = []
+    for ph in phonemes:
+        current.append(ph)
+        if any(c.isdigit() for c in ph):
+            syll_phon.append(current)
+            current = []
+    if current:
+        if syll_phon:
+            syll_phon[-1].extend(current)
+        else:
+            syll_phon.append(current)
+
+    num_syll = len(syll_phon)
+    syll_texts = split_word_text(word_text, num_syll) if num_syll else [word_text]
+    syllables = []
+    for i, syl_ph in enumerate(syll_phon):
+        nucleus = ''
+        coda = []
+        for j, p in enumerate(syl_ph):
+            if p[-1].isdigit():
+                nucleus = p
+                coda = [str(x) for x in syl_ph[j+1:]]
+                break
+        if not nucleus:
+            nucleus = ' '.join(syl_ph)
+        syllables.append(Syllable(
+            text=syll_texts[i] if i < len(syll_texts) else word_text,
+            nucleus=nucleus,
+            coda=coda,
+            is_terminal=False
+        ))
+    return syllables
+
+
+# The main function to extract syllables (use *split_word_text()* and *heuristic_syllables()*)
+def extract_syllables(word_text, line_id, word_id, is_last_word):
+    try:
+        result = syllabify(word_text)    # If word exist
+    except Exception:                    # Else we use heuristic_syllables function
+        phonemes = g2p(word_text)
+        return heuristic_syllables(phonemes, word_text)
+
+    if hasattr(result, 'words') and result.words:    # If result is a Sentence (list of words , possible return value for syllabify lib)
+        word_obj = result.words[0]                   # Take the first words 
+    elif hasattr(result, 'syllables'):
+        word_obj = result                            # else take result if alreadt word (syllables attribute)
+    else:
+        return []                                    # If neither, return empty list 
+
+    num_syll = len(word_obj.syllables)               
+    syll_texts = split_word_text(word_text, num_syll) if num_syll else [word_text]
+
+    syllables = []
+    for i, syl in enumerate(word_obj.syllables):
+        nucleus = str(syl.nucleus) if hasattr(syl.nucleus, '__str__') else syl.nucleus
+        coda = [str(c) for c in syl.coda] if syl.coda else []
+        is_terminal = (is_last_word and i == num_syll - 1)
+        text_part = syll_texts[i] if i < len(syll_texts) else word_text
+        syllables.append(Syllable(
+            text=text_part,
+            nucleus=nucleus,
+            coda=coda,
+            is_terminal=is_terminal
+        ))
+    return syllables
+
+
+
+
+# Process verse stay the same 
+# process_line slightly changed 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
