@@ -14,65 +14,72 @@ CONSONANT_FAMILIES = {
 
 class RhymeRegistry:
     def __init__(self):
-        self.mapping = {}  # Store {"AY1": "A", "OW1": "B"}
+        self.mapping = {}
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         self.next_letter_index = 0
 
     def get_label(self, signature: str) -> str:
         if signature not in self.mapping:
-            # Assign a new letter if phoneme unknown
             self.mapping[signature] = self.alphabet[self.next_letter_index % len(self.alphabet)]
             self.next_letter_index += 1
         return self.mapping[signature]
 
 def get_syllable_signature(syllable):
-    """Signature if rhyme : nucleus without stress + coda with families."""
-    nucleus = str(syllable.nucleus)
-    if not nucleus:
+    """Génère une signature basée sur le son, le stress et le coda."""
+    # syllable est un objet Syllable (text, nucleus, coda, is_terminal)
+    nucleus_text = str(syllable.nucleus)
+    if not nucleus_text:
         return ""
-    nucleus_clean = re.sub(r'\d', '', nucleus)
-    coda_parts = []
-    for c in syllable.coda:
-        c_str = str(c)
-        c_clean = re.sub(r'\d', '', c_str)
-        family = CONSONANT_FAMILIES.get(c_clean, c_clean)
-        coda_parts.append(family)
-    coda_str = '-'.join(coda_parts) if coda_parts else ''
-    return f"{nucleus_clean}-{coda_str}" if coda_str else nucleus_clean
 
-def assign_rhyme_labels(verse: Verse, min_occurrences=3, only_terminal=False):
-    """
-    Colore les syllabes dont la signature apparaît au moins min_occurrences fois.
-    only_terminal=True ne considère que la dernière syllabe de chaque mot.
-    color syllables with min_occurrences , only_terminal=True see only last syllable of each word
-    """
+    # Extraction du son et du stress (ex: AE1 -> AE, 1)
+    match = re.match(r"([A-Z]+)([0-2])", nucleus_text)
+    if not match:
+        vowel_sound = nucleus_text
+        stress = "0"
+    else:
+        vowel_sound, stress = match.groups()
+
+    # FILTRE : On ignore les rimes sur syllabes non-accentuées en milieu de vers
+    if stress == "0" and not syllable.is_terminal:
+        return ""
+
+    coda = "".join(syllable.coda)
+    return f"{vowel_sound}_{stress}_{coda}"
+
+def assign_rhyme_labels(verse: Verse, min_occurrences=3, tail_window=2, only_terminal=False):
     counter = defaultdict(int)
-
-    # 1. Count signatures 
+    
+    # 1. Premier passage : Compter les occurrences
     for line in verse.lines:
+        all_line_syllables = []
         for word in line.words:
-            if only_terminal:
-                syllables_to_check = [word.syllables[-1]] if word.syllables else []
-            else:
-                syllables_to_check = word.syllables
-            for syl in syllables_to_check:
-                sig = get_syllable_signature(syl)
-                if sig:
-                    counter[sig] += 1
+            all_line_syllables.extend(word.syllables)
 
-    # 2. keep only frequent_sigs 
+        if tail_window is not None and tail_window > 0:
+            syllables_to_check = all_line_syllables[-tail_window:]
+        else:
+            syllables_to_check = all_line_syllables
+
+        for syl in syllables_to_check:
+            sig = get_syllable_signature(syl)
+            if sig:
+                counter[sig] += 1
+
     frequent_sigs = {sig for sig, cnt in counter.items() if cnt >= min_occurrences}
 
-    # 3. Assign labels
+    # 2. Second passage : Assigner les labels
     registry = RhymeRegistry()
     for line in verse.lines:
+        all_line_syllables = []
         for word in line.words:
-            if only_terminal:
-                syllables_to_check = [word.syllables[-1]] if word.syllables else []
-            else:
-                syllables_to_check = word.syllables
-            for syl in syllables_to_check:
-                sig = get_syllable_signature(syl)
-                if sig and sig in frequent_sigs:
-                    syl.rhyme_label = registry.get_label(sig)
+            all_line_syllables.extend(word.syllables)
 
+        if tail_window is not None and tail_window > 0:
+            syllables_to_check = all_line_syllables[-tail_window:]
+        else:
+            syllables_to_check = all_line_syllables
+
+        for syl in syllables_to_check:
+            sig = get_syllable_signature(syl)
+            if sig in frequent_sigs:
+                syl.rhyme_label = registry.get_label(sig)

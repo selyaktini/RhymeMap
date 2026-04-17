@@ -1,10 +1,10 @@
 from .phonetics import process_verse
 from .engine import assign_rhyme_labels
 from .visual import VisualEngine
-
-#TODO: add function(s) to rm add lips and common sounds (yeah, skrr, ah)
+from .analyzer import analyze_dataset  # À créer dans src/analyzer.py
 
 def run_rhyme_mapper():
+    """Exemple avec le couplet de 'Rap God'."""
     lyrics = """
     Everybody loves to root for a nuisance, hit the Earth like an asteroid
     Did nothin' but shoot for the Moon since (pew)
@@ -100,11 +100,45 @@ def run_rhyme_mapper():
     print("=== RhymeMapper - Eminem 'Rap God' ===")
 
     verse = process_verse(lyrics, artist="Eminem")
-    assign_rhyme_labels(verse, min_occurrences=3, only_terminal=True)
+    assign_rhyme_labels(verse, min_occurrences=3, tail_window=5)
 
     visualizer = VisualEngine()
     visualizer.display(verse)
 
-if __name__ == "__main__":
-    run_rhyme_mapper()
+def run_dataset_analysis():
+    csv_path = "dataset/artists_sample.csv"
+    print("\n=== Analyse Détaillée par Verse ===")
+    
+    try:
+        # On récupère la liste des stats par morceau
+        all_verses = analyze_dataset(csv_path, min_occurrences=2, tail_window=None)
+    except FileNotFoundError:
+        print(f"Fichier {csv_path} introuvable.")
+        return
 
+    if not all_verses:
+        print("Aucune donnée exploitable.")
+        return
+
+    # Header du tableau dynamique
+    header = "{:<25} {:<15} {:>10} {:>10} {:>12} {:>10}".format(
+        "Track Name", "Artist", "Density", "Multi", "Signatures", "Syll."
+    )
+    print(header)
+    print("-" * len(header))
+
+    for v in all_verses:
+        print("{:<25} {:<15} {:>10.1%} {:>10.1%} {:>12} {:>10}".format(
+            v['track'][:23], 
+            v['artist'][:14],
+            v['density'],
+            v['multi_score'], # Nouvelle colonne
+            v['unique_sigs'],
+            v['total_syllables']
+        ))
+
+
+if __name__ == "__main__":
+    # Au choix, lancez l'une des deux fonctions ou les deux
+    run_rhyme_mapper()        # Pour visualiser le texte colorisé
+    run_dataset_analysis()      # Pour l'analyse statistique du dataset
