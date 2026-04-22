@@ -46,7 +46,7 @@ def get_syllable_signature(syllable):
     coda = "".join(syllable.coda)
     return f"{vowel_sound}_{stress}_{coda}"
 
-def assign_rhyme_labels(verse: Verse, min_occurrences=3, tail_window=2, only_terminal=False):
+def assign_rhyme_labels(verse: Verse, min_occurrences=6, tail_window=None, only_terminal=False):
     counter = defaultdict(int)
     
     # 1. Premier passage : Compter les occurrences

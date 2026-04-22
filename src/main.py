@@ -100,7 +100,7 @@ def run_rhyme_mapper():
     print("=== RhymeMapper - Eminem 'Rap God' ===")
 
     verse = process_verse(lyrics, artist="Eminem")
-    assign_rhyme_labels(verse, min_occurrences=3, tail_window=5)
+    assign_rhyme_labels(verse, min_occurrences=3, tail_window=8)
 
     visualizer = VisualEngine()
     visualizer.display(verse)
