@@ -54,6 +54,6 @@ RhymeMapper/
 
     Python 3.7+
 
-    g2p_en, syllabify, pandas, matplotlib, seaborn, numpy
+    g2p_en, syllabify, pandas, matplotlib, seaborn, numpy, scikit-learn
 
 ### 

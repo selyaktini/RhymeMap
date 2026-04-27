@@ -198,7 +198,7 @@ pandas
 matplotlib
 seaborn
 numpy
-
+scikit-learn
 
 All are available on PyPI. Install with `make install` or `pip install -r requirements.txt`.
 
