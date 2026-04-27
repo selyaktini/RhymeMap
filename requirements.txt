@@ -1,0 +1,7 @@
+g2p_en
+syllabify
+pandas
+matplotlib
+seaborn
+scikit-learn
+numpy
