@@ -30,6 +30,10 @@ IT TAKES A BIT OF TIME !!!!
 - make plots
 
 * here is some plots: 
+![multi vs density average](./data/artist_averages.png)
+![boxplot density](./data/boxplot_density.png)
+![multi vs density all](./data/scatter_all.png)
+![similarity_Eminem](./data/similarity_Eminem.png)
 
 
 
