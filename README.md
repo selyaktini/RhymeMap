@@ -42,17 +42,6 @@ IT TAKES A BIT OF TIME !!!!
 ### Run unit tests:
 make test 
 
-### Project structure:
-RhymeMapper/
-├── src/               # core modules (models, phonetics, engine, visual, main)
-├── scripts/           # generate_stats.py
-├── analysis/          # plotting scripts (config, data_loader, plots, run_all_plots)
-├── dataset/           # input CSV files (lyrics_raw.csv, artists_sample.csv)
-├── data/              # generated stats.csv and figures
-├── tests/             # unit tests
-├── Makefile           # automation
-├── requirements.txt   # dependencies
-└── README.md
 
 ### Dependencies
 
