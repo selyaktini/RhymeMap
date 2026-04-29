@@ -45,7 +45,7 @@ make test
 
 ### Dependencies
 
-    Python 3.7+
+    Python 3.10+
 
     g2p_en, syllabify, pandas, matplotlib, seaborn, numpy, scikit-learn
 
