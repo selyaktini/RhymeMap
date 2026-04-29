@@ -1,0 +1,165 @@
+:root {
+  --bg: #1e1e2e;
+  --surface: #2a2a3c;
+  --text: #e0e0e0;
+  --accent: #ff9f43;
+  --highlight: #ffff00;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--surface);
+  padding: 1rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+h1 { font-size: 1.8rem; color: var(--accent); }
+
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+select, button {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  padding: 0.4em 1em;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+select:hover, button:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+#lyricsContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(255,159,67,0.2);
+}
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  margin-bottom: 0.8em;
+}
+.word {
+  display: inline-flex;
+  white-space: nowrap;
+}
+.syllable {
+  padding: 0.1em 0.15em;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+/* 26 couleurs pour les rimes A-Z */
+.syllable.rhyme-a { background: #e74c3c; }   /* rouge */
+.syllable.rhyme-b { background: #2ecc71; }   /* vert */
+.syllable.rhyme-c { background: #3498db; }   /* bleu */
+.syllable.rhyme-d { background: #f1c40f; }   /* jaune */
+.syllable.rhyme-e { background: #9b59b6; }   /* violet */
+.syllable.rhyme-f { background: #e67e22; }   /* orange */
+.syllable.rhyme-g { background: #1abc9c; }   /* turquoise */
+.syllable.rhyme-h { background: #e84393; }   /* rose */
+.syllable.rhyme-i { background: #00cec9; }   /* cyan */
+.syllable.rhyme-j { background: #fd79a8; }   /* rose clair */
+.syllable.rhyme-k { background: #6c5ce7; }   /* indigo */
+.syllable.rhyme-l { background: #a29bfe; }   /* lavande */
+.syllable.rhyme-m { background: #fab1a0; }   /* pêche */
+.syllable.rhyme-n { background: #81ecec; }   /* menthe */
+.syllable.rhyme-o { background: #ffeaa7; }   /* sable */
+.syllable.rhyme-p { background: #55efc4; }   /* émeraude */
+.syllable.rhyme-q { background: #74b9ff; }   /* bleu ciel */
+.syllable.rhyme-r { background: #dfe6e9; color: #000; } /* gris clair */
+.syllable.rhyme-s { background: #b2bec3; }   /* gris */
+.syllable.rhyme-t { background: #d63031; }   /* rouge sombre */
+.syllable.rhyme-u { background: #0984e3; }   /* bleu vif */
+.syllable.rhyme-v { background: #6c5ce7; }   /* violet foncé */
+.syllable.rhyme-w { background: #636e72; }   /* gris foncé */
+.syllable.rhyme-x { background: #e17055; }   /* terre cuite */
+.syllable.rhyme-y { background: #00b894; }   /* vert forêt */
+.syllable.rhyme-z { background: #fdcb6e; }   /* moutarde */
+
+.syllable.no-rhyme {
+  opacity: 0.4;
+}
+
+.highlight-group {
+  outline: 2px dashed var(--highlight);
+  outline-offset: 2px;
+}
+
+/* Boutons de groupes */
+#groupButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+}
+
+.group-btn {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.group-btn:hover {
+  background: var(--accent);
+  color: #000;
+}
+
+.group-btn.active {
+  background: var(--highlight);
+  color: #000;
+  border-color: var(--highlight);
+  font-weight: bold;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+  background: var(--surface);
+  border-top: 1px solid var(--accent);
+}
+
+.placeholder {
+  text-align: center;
+  font-style: italic;
+  opacity: 0.7;
+}

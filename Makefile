@@ -36,6 +36,8 @@ plots:
 
 demo:
 	$(PYTHON) -m src.main
+	$(PYTHON) -m export_for_web
+	firefox web/index.html &
 
 clean:
 	rm -rf $(SRC_DIR)/__pycache__ $(ANALYSIS_DIR)/__pycache__ $(SCRIPT_DIR)/__pycache__ tests/__pycache__

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RhymeMapper – Visualisation Web</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🎤 RhymeMapper</h1>
+    <div id="controls">
+      <select id="trackSelect">
+        <option value="">-- Choisir un morceau --</option>
+      </select>
+      <button id="toggleRhymes">Afficher toutes les syllabes</button>
+      <div id="groupButtons"></div>
+    </div>
+  </header>
+
+  <main>
+    <div id="lyricsContainer">
+      <p class="placeholder">Sélectionnez un morceau pour commencer.</p>
+    </div>
+  </main>
+
+  <footer>
+    <p>Projet RhymeMapper – Analyse phonétique des rimes</p>
+    <p>Réalisé par Yahya et Sohayb</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="display.js"></script>
+</body>
+</html>
