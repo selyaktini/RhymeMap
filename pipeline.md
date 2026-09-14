@@ -17,23 +17,27 @@
    │
    ▼
 4. SIGNATURE DE RIME
-   - Noyau sans stress (ex: "AA1" → "AA")
-   - Coder les consonnes par familles (NAS, PLO, SIB, FRI, LIQ, GLI, ASP)
-   - Signature = "noyau-coda_familles" (ex: "AA-PLO-PLO")
+   - Noyau + stress (ex: "AA1" → "AA", stress 1)
+   - Signature = "noyau_stress_coda" (ex: "AA_1_RMZ")
+   - Option use_consonant_families : coder les consonnes du coda par familles
+     (NAS, PLO, SIB, FRI, LIQ, GLI, ASP) → "AA_1_PLO" ; permet les rimes
+     approximatives (loud / out). Désactivée par défaut.
    │
    ▼
 5. DÉTECTION DES RIMES
    - Compter les occurrences de chaque signature
    - Garder uniquement les signatures apparaissant ≥ min_occurrences (ex: 3)
-   - Attribuer un label (A, B, C...) à chaque signature retenue
+   - Attribuer un label (A, B, ... Z, AA, AB, ...) à chaque signature retenue
    - Marquer les syllabes correspondantes avec ce label
    │
    ▼
 6. CALCUL DES MÉTRIQUES
-   - Density = (% de syllabes rimantes)
-   - Multi = Diversité des signatures (nb signatures uniques / total syllabes)
+   - Density   = % de syllabes rimantes
+   - Multi     = % de syllabes dans une suite de >= 2 syllabes consécutives
+                 portant le MÊME label (rime multisyllabique)
+   - Diversity = nb de groupes distincts / total syllabes
    - Signatures = nombre de groupes de rimes distincts
-   - Syll. = nombre total de syllabes
+   - Syll.     = nombre total de syllabes
    │
    ▼
 7. VISUALISATION

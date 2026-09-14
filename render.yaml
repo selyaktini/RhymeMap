@@ -1,0 +1,16 @@
+# Render blueprint: https://render.com/docs/blueprint-spec
+#
+# Deploy with: New -> Blueprint -> point it at this repository.
+# Free plan, no card. It sleeps after 15 minutes idle and takes ~50s to wake.
+services:
+  - type: web
+    name: rhymemapper
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    envVars:
+      # Render supplies PORT; serve_web reads it, and HOST must not be loopback
+      # or the platform's health check cannot reach the container.
+      - key: HOST
+        value: 0.0.0.0

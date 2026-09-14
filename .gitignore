@@ -208,5 +208,22 @@ __marimo__/
 
 
 
-dataset
+# Large corpora are downloaded, not committed -- but the two small files the
+# repository ships must stay tracked. Git cannot re-include a file whose parent
+# directory is excluded, so this has to exclude the *contents* (`dataset/*`)
+# rather than the directory itself. As a bare `dataset` rule it silently kept
+# dataset/demo_rap_god.txt out of the repo, which broke `make demo` and
+# `make eval` on a fresh clone.
+dataset/*
+!dataset/artists_sample.csv
+!dataset/demo_rap_god.txt
 
+
+# RhymeMapper generated artefacts
+.cache/
+web/data.js
+data/stats.csv
+web/*.wav
+web/*.mp3
+web/*.m4a
+web/*.ogg

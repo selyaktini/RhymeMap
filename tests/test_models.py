@@ -1,61 +1,87 @@
+"""Tests for the core dataclasses."""
+
 import unittest
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.models import Nucleus, Word, Line, Verse
+from rhymemap.models import Line, Nucleus, Syllable, Verse, Word
 
-class TestModels(unittest.TestCase):
-    def test_nucleus_creation(self):
+
+class TestSyllable(unittest.TestCase):
+    def test_minimal_construction(self):
+        s = Syllable(text="cat", nucleus="AE1", coda=["T"])
+        self.assertEqual(s.text, "cat")
+        self.assertEqual(s.nucleus, "AE1")
+        self.assertEqual(s.coda, ["T"])
+
+    def test_defaults(self):
+        s = Syllable(text="a", nucleus="AH0", coda=[])
+        self.assertEqual(s.onset, [])
+        self.assertFalse(s.is_terminal)
+        self.assertEqual(s.rhyme_label, "")
+        self.assertEqual((s.line_id, s.word_id, s.syl_index), (0, 0, 0))
+
+    def test_onset_is_retained(self):
+        """The similarity engine needs the onset to penalise repetition."""
+        s = Syllable(text="strength", nucleus="EH1", coda=["NG", "K", "TH"], onset=["S", "T", "R"])
+        self.assertEqual(s.onset, ["S", "T", "R"])
+
+    def test_mutable_defaults_are_not_shared(self):
+        a, b = Syllable(text="a", nucleus="AA1", coda=[]), Syllable(text="b", nucleus="AA1", coda=[])
+        a.onset.append("K")
+        self.assertEqual(b.onset, [])
+
+
+class TestNucleus(unittest.TestCase):
+    def test_creation(self):
         n = Nucleus(phoneme="OW1", stress=1, line_id=0, word_id=0, is_terminal=True)
         self.assertEqual(n.phoneme, "OW1")
         self.assertEqual(n.stress, 1)
-        self.assertEqual(n.line_id, 0)
-        self.assertEqual(n.word_id, 0)
         self.assertTrue(n.is_terminal)
 
-    def test_word_creation(self):
+
+class TestWord(unittest.TestCase):
+    def test_creation(self):
         w = Word(text="hello", line_id=0, word_id=0, is_last_word=True)
         self.assertEqual(w.text, "hello")
-        self.assertEqual(w.line_id, 0)
-        self.assertEqual(w.word_id, 0)
         self.assertTrue(w.is_last_word)
         self.assertEqual(w.nuclei, [])
+        self.assertEqual(w.syllables, [])
 
-    def test_word_with_nuclei(self):
-        n = Nucleus(phoneme="EH1", stress=1, line_id=0, word_id=0, is_terminal=True)
-        w = Word(text="hello", nuclei=[n], line_id=0, word_id=0, is_last_word=True)
-        self.assertEqual(len(w.nuclei), 1)
+    def test_with_nuclei(self):
+        n = Nucleus(phoneme="EH1", stress=1, line_id=0, word_id=0)
+        w = Word(text="hello", nuclei=[n])
         self.assertEqual(w.nuclei[0].phoneme, "EH1")
 
-    def test_line_creation(self):
+
+class TestLine(unittest.TestCase):
+    def test_creation(self):
         line = Line(text="hello world", line_id=0)
-        self.assertEqual(line.text, "hello world")
-        self.assertEqual(line.line_id, 0)
         self.assertEqual(line.words, [])
         self.assertEqual(line.rhyme_label, "")
 
-    def test_line_with_words(self):
-        w1 = Word(text="hello", line_id=0, word_id=0)
-        w2 = Word(text="world", line_id=0, word_id=1)
-        line = Line(text="hello world", words=[w1, w2], line_id=0)
-        self.assertEqual(len(line.words), 2)
-        self.assertEqual(line.words[0].text, "hello")
-        self.assertEqual(line.words[1].text, "world")
+    def test_with_words(self):
+        line = Line(text="hello world", words=[Word(text="hello"), Word(text="world")])
+        self.assertEqual([w.text for w in line.words], ["hello", "world"])
 
-    def test_verse_creation(self):
+
+class TestVerse(unittest.TestCase):
+    def test_creation(self):
         verse = Verse(metadata={"artist": "Eminem"}, verse_id=0)
         self.assertEqual(verse.metadata["artist"], "Eminem")
-        self.assertEqual(verse.verse_id, 0)
         self.assertEqual(verse.lines, [])
 
-    def test_verse_with_lines(self):
-        line1 = Line(text="line one", line_id=0)
-        line2 = Line(text="line two", line_id=1)
-        verse = Verse(lines=[line1, line2], verse_id=1)
-        self.assertEqual(len(verse.lines), 2)
-        self.assertEqual(verse.lines[0].text, "line one")
-        self.assertEqual(verse.lines[1].text, "line two")
+    def test_syllables_flattens_in_order(self):
+        def word(*texts):
+            return Word(text="".join(texts), syllables=[Syllable(text=t, nucleus="AA1", coda=[]) for t in texts])
 
-if __name__ == '__main__':
+        verse = Verse(lines=[
+            Line(text="l0", words=[word("a", "b"), word("c")]),
+            Line(text="l1", words=[word("d")]),
+        ])
+        self.assertEqual([s.text for s in verse.syllables()], ["a", "b", "c", "d"])
+
+    def test_syllables_on_empty_verse(self):
+        self.assertEqual(Verse().syllables(), [])
+
+
+if __name__ == "__main__":
     unittest.main()

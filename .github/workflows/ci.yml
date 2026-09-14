@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# The repository is read; nothing here writes to it.
+permissions:
+  contents: read
+
+# A second push supersedes the first: cancel the run nobody is waiting for.
+# Not applied to the default branch, where every commit's result is worth having.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/python-setup
+        with:
+          python-version: ${{ matrix.python-version }}
+          extras: ruff
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Test
+        run: ./run_tests.sh
+
+      - name: No test may touch the network
+        # The song loader is network-bound by nature; a test that quietly
+        # reached YouTube or lrclib.net would be flaky here and would pass
+        # locally for whoever wrote it.
+        if: matrix.python-version == '3.12'
+        run: python -m scripts.check_no_network
+
+      - name: Smoke-test the pipeline
+        run: |
+          python -m scripts.generate_stats --quiet
+          python -m analysis.run_all_plots
+          python -m rhymemap.main --no-dataset
+          python -m eval.build_gold
+          python -m eval.ablation
+
+  package:
+    # The project claims to be pip-installable. This is that claim, tested.
+    name: Install as a package
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/python-setup
+        with:
+          python-version: "3.12"
+
+      - name: Build and install the wheel
+        run: |
+          python -m pip install --upgrade build
+          python -m build --wheel
+          python -m pip install --no-deps --force-reinstall dist/*.whl
+
+      - name: Import it from outside the source tree
+        # From / rather than the checkout, so a module that only resolves
+        # because the repository happens to be the working directory fails here.
+        working-directory: /
+        run: |
+          python - <<'PY'
+          import rhymemap.phonology, rhymemap.similarity, rhymemap.sources
+          assert rhymemap.sources.parse_youtube_id("https://youtu.be/dQw4w9WgXcQ") == "dQw4w9WgXcQ"
+          print("the installed package imports cleanly")
+          PY
+
+      - name: Refuse generic top-level names in site-packages
+        # `src`, `scripts` and `analysis` would each collide with any other
+        # project shipping a directory of that name. Only `rhymemap` ships.
+        working-directory: /
+        run: |
+          python - <<'PY'
+          import importlib.util, pathlib, rhymemap
+          site = pathlib.Path(rhymemap.__file__).resolve().parent.parent
+          for name in ("src", "scripts", "analysis"):
+              spec = importlib.util.find_spec(name)
+              origin = pathlib.Path(spec.origin).resolve() if spec and spec.origin else None
+              assert origin is None or site not in origin.parents, \
+                  f"a top-level `{name}` was installed into site-packages"
+          print("only `rhymemap` was installed")
+          PY

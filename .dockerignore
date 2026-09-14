@@ -1,0 +1,43 @@
+# The builder stage does `COPY . .`, so everything not listed here lands in the
+# build context and is uploaded on every build.
+
+.git
+.github
+.gitignore
+
+# Generated, and regenerated inside the image anyway. Copying a host cache in
+# would also risk baking stale phoneme lookups into the published image.
+.cache
+site
+build
+dist
+*.egg-info
+__pycache__
+*.py[cod]
+.ruff_cache
+.pytest_cache
+.mypy_cache
+
+# Figures and stats are the corpus tooling's output; nothing behind the server
+# reads them.
+data/*.png
+data/stats.csv
+
+# Not needed at runtime.
+tests
+eval
+analysis
+docs
+*.md
+!README.md
+
+# 61 MB of lexicon provenance. scripts/build_darija_lexicon.py already reduced
+# it to the 1.4 MB word list in rhymemap/data/, which is what the engine reads;
+# copying the master too would be paid for on every cold start.
+dataset/darija_lexicon_master_150k.csv
+
+# Audio a developer dropped in locally must never end up in a published image.
+web/*.mp3
+web/*.wav
+web/*.m4a
+web/*.ogg

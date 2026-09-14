@@ -1,17 +1,19 @@
 #!/bin/bash
+# Run the RhymeMapper test suite from the project root.
+set -u
 
-echo "Running unit tests for RhymeMapper..."
-echo "==================================="
+echo "Running RhymeMapper tests"
+echo "========================="
 
-python -m unittest discover -s tests -p "test_*.py" -v
-
+# -t . makes the project root the top-level import dir, so `src` and `tests`
+# both import normally and no test file needs to patch sys.path.
+python3 -m unittest discover -s tests -t . -p "test_*.py" -v
 RESULT=$?
 
-echo "==================================="
+echo "========================="
 if [ $RESULT -eq 0 ]; then
-  echo "✅ All tests passed!"
+  echo "All tests passed."
 else
-  echo "❌ Some tests failed."
+  echo "Some tests failed."
 fi
-
 exit $RESULT

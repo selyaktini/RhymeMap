@@ -1,35 +1,224 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RhymeMapper – Visualisation Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RhymeMapper — see how a song rhymes</title>
+  <meta name="description" content="Phonetic rhyme-scheme analysis for any song. Paste a link, watch the rhymes light up.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2308080c'/%3E%3Ctext x='16' y='23' font-size='19' font-family='Georgia,serif' fill='%23ff8a3d' text-anchor='middle'%3ER%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>🎤 RhymeMapper</h1>
-    <div id="controls">
-      <select id="trackSelect">
-        <option value="">-- Choisir un morceau --</option>
-      </select>
-      <button id="toggleRhymes">Afficher toutes les syllabes</button>
-      <div id="groupButtons"></div>
+  <canvas id="threads" aria-hidden="true"></canvas>
+  <canvas id="waves" aria-hidden="true"></canvas>
+  <div id="grain" aria-hidden="true"></div>
+  <div id="progress" aria-hidden="true"></div>
+
+  <header class="masthead">
+    <div class="shell masthead-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark" aria-hidden="true">R</span>
+        <span class="brand-name">RhymeMapper</span>
+      </a>
+      <nav>
+        <a class="nav-link" href="#analysis">Analysis</a>
+        <a class="nav-link" href="#how">How it works</a>
+        <button class="btn btn-ghost btn-sm" id="dimToggle" type="button" aria-pressed="true">Dim</button>
+      </nav>
     </div>
   </header>
 
-  <main>
-    <div id="lyricsContainer">
-      <p class="placeholder">Sélectionnez un morceau pour commencer.</p>
-    </div>
+  <main id="top">
+    <section class="shell hero">
+      <span class="particle-host">
+        <h1 id="heroTitle">Hear the pattern.</h1>
+        <canvas class="particle-canvas" id="heroParticles" aria-hidden="true"></canvas>
+      </span>
+      <p class="hero-lede" id="heroLede">
+        Paste a YouTube link. RhymeMapper finds the lyrics — from the captions, or from a
+        synced-lyrics database when there are none — breaks every word into syllables, and
+        surfaces the <span class="rotating" id="rotatingWord">multisyllabic chains</span>
+        that carry a verse.
+      </p>
+      <form class="linkbar" id="linkForm" autocomplete="off">
+        <label class="sr-only" for="linkInput">YouTube link or song</label>
+        <input id="linkInput" type="text" inputmode="url" spellcheck="false"
+               placeholder="https://www.youtube.com/watch?v=…">
+        <button class="btn btn-primary star-border" id="analyseBtn" type="submit">Analyse</button>
+      </form>
+
+      <div class="analyse-progress" id="analyseProgress" hidden
+           role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"
+           aria-label="Analysis progress"><span></span></div>
+
+      <p class="hero-hint">
+        No link? <button type="button" id="pasteToggle">Paste lyrics instead</button>
+        · <button type="button" id="demoBtn">Load the demo verse</button>
+      </p>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <div class="panel paste" id="pastePanel" hidden style="max-width:720px;margin:24px auto 0;text-align:left">
+        <label class="sr-only" for="lyricsInput">Lyrics</label>
+        <textarea id="lyricsInput" spellcheck="false"
+                  placeholder="Paste lyrics here, one line per line."></textarea>
+        <div class="paste-actions">
+          <button class="btn btn-primary btn-sm" id="analysePasteBtn" type="button">Analyse lyrics</button>
+          <span class="panel-title">⌘/Ctrl + Enter</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell" id="analysis" hidden>
+      <div class="track" data-reveal>
+        <div class="track-card" id="trackCard"></div>
+        <div class="track-meta">
+          <h2 class="sr-only" id="trackTitle">—</h2>
+          <p class="sr-only" id="trackArtist"></p>
+          <div class="track-badges" id="trackBadges"></div>
+        </div>
+        <div class="controls">
+          <label class="field">
+            <span>Library</span>
+            <select id="trackSelect"></select>
+          </label>
+          <label class="field">
+            <span>Engine</span>
+            <select id="engineSelect">
+              <option value="chains">chains</option>
+              <option value="similarity">similarity</option>
+              <option value="families">families</option>
+              <option value="exact">exact (v1)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="stats" id="stats" data-reveal></div>
+
+      <div class="workspace">
+        <article class="panel lyrics" id="lyrics" data-reveal>
+          <p class="placeholder">Analyse a song to see its rhyme scheme.</p>
+        </article>
+
+        <aside class="sidebar">
+          <section class="panel player border-glow" id="player" hidden data-reveal><span class="edge-light"></span>
+            <div class="panel-title">Playback</div>
+            <div class="player-frame" id="playerFrame" hidden></div>
+            <audio id="audio" preload="metadata" hidden></audio>
+
+            <div class="transport" id="transport" hidden>
+              <div class="eslider" id="seek"></div>
+              <div class="transport-row">
+                <button class="transport-btn" id="playToggle" type="button" aria-label="Play">
+                  <svg id="playIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <span class="transport-time"><span class="flapboard" id="clock"></span></span>
+                <div class="transport-rates" role="group" aria-label="Playback speed">
+                  <button class="rate-btn" type="button" data-rate="0.5" aria-pressed="false">0.5&times;</button>
+                  <button class="rate-btn" type="button" data-rate="0.75" aria-pressed="false">0.75&times;</button>
+                  <button class="rate-btn" type="button" data-rate="1" aria-pressed="true">1&times;</button>
+                </div>
+              </div>
+            </div>
+
+            <p class="player-note" id="playerNote">Rhymes light up in time with the track.</p>
+          </section>
+
+          <section class="panel" data-reveal>
+            <div class="panel-head">
+              <span class="panel-title">Rhyme groups</span>
+              <span class="panel-title" id="groupCount"></span>
+            </div>
+            <div class="chains" id="chains"></div>
+            <p class="hint">Click a group to isolate it. Hover the lyrics to trace one.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <section class="shell" id="how" style="padding-bottom:64px">
+      <div class="panel" data-reveal style="padding:clamp(20px,3vw,36px)">
+        <span class="panel-title">How it works</span>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:24px;margin-top:20px">
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:6px">1 · Read</h3>
+            <p style="color:var(--ink-2);font-size:.88rem">
+              Captions give the lyrics and the timing of every word in a single fetch, so
+              nothing has to be aligned afterwards.
+            </p>
+          </div>
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:6px">2 · Sound out</h3>
+            <p style="color:var(--ink-2);font-size:.88rem">
+              Each word becomes phonemes, then syllables split into onset, nucleus and coda
+              — the parts a rhyme is actually made of.
+            </p>
+          </div>
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:6px">3 · Compare</h3>
+            <p style="color:var(--ink-2);font-size:.88rem">
+              Syllables are scored on articulatory distance, not spelling, so <em>bit</em> and
+              <em>feet</em> are near and <em>cat</em> and <em>cat</em> are repetition, not rhyme.
+            </p>
+          </div>
+          <div>
+            <h3 style="font-family:var(--font-display);font-size:1.2rem;margin-bottom:6px">4 · Chain</h3>
+            <p style="color:var(--ink-2);font-size:.88rem">
+              Repeated spans are found whole, so <em>levitatin'</em> and <em>devastatin'</em>
+              read as one five-syllable chain instead of ten loose syllables.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer>
-    <p>Projet RhymeMapper – Analyse phonétique des rimes</p>
-    <p>Réalisé par Yahya et Sohayb</p>
+  <div id="tooltip" class="tooltip" hidden></div>
+
+  <section class="author">
+    <!-- Photos: save them as web/me.jpg and web/sohayb.jpg. Until they exist each
+         card shows its initial instead, so nothing is ever broken. -->
+    <article class="profile-card glass" data-profile>
+      <div class="profile-avatar-wrap">
+        <span class="profile-initials" aria-hidden="true">Y</span>
+        <img class="profile-avatar" data-avatar src="me.jpg"
+             alt="" width="96" height="96" loading="lazy">
+      </div>
+      <h2 class="profile-name">Yahya Bel Hajjam</h2>
+      <p class="profile-role">Computer science student · built RhymeMapper</p>
+      <div class="profile-links">
+        <a class="profile-link" href="https://github.com/yahyabmo/RhymeMap"
+           target="_blank" rel="noopener">GitHub</a>
+        <a class="profile-link" href="https://github.com/yahyabmo"
+           target="_blank" rel="noopener">@yahyabmo</a>
+      </div>
+    </article>
+
+    <article class="profile-card glass" data-profile>
+      <div class="profile-avatar-wrap">
+        <span class="profile-initials" aria-hidden="true">S</span>
+        <img class="profile-avatar" data-avatar src="sohayb.jpg"
+             alt="" width="96" height="96" loading="lazy">
+      </div>
+      <h2 class="profile-name">Sohayb El Yaktini</h2>
+      <p class="profile-role">Computer science student · built RhymeMapper</p>
+      <div class="profile-links">
+        <a class="profile-link" href="https://github.com/yahyabmo/RhymeMap"
+           target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </article>
+  </section>
+
+  <footer class="shell">
+    <span>RhymeMapper — phonetic rhyme-scheme analysis</span>
+    <span>Colour is generated from the phonetics. Nothing here is decorative.</span>
   </footer>
 
-  <script src="data.js"></script>
-  <script src="display.js"></script>
+  <script src="data.js" onerror="window.rhymeDataMissing = true"></script>
+  <script src="effects.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -1,3 +1,12 @@
+> **⚠️ Mise à jour (v4.0) — à relire avant la soutenance.**
+> Ce plan a été écrit pour la v1. Trois choses qu'il dit ne sont plus vraies :
+> les « familles de consonnes » ont été supprimées (c'était du code mort que la
+> doc présentait comme la fonctionnalité principale) ; les groupes ne
+> s'appellent plus `A`, `B`, `AB` mais portent le nom de leur propre rime
+> (`-ames`, `-ike`) ; et la démo n'est plus seulement le terminal — il y a une
+> interface web, et on peut analyser n'importe quelle chanson à partir d'un lien
+> YouTube. Le déroulé et le minutage ci-dessous restent valables.
+
 # Plan de Soutenance — RhymeMapper
 **Durée : 10-15 minutes | Format : Présentation interactive + démo live**
 
@@ -74,14 +83,26 @@ Texte brut → Phonèmes (g2p_en) → Syllabes (syllabify) → Signatures → La
 | Module | Ce qu'il fait |
 |---|---|
 | `phonetics.py` | Convertit les mots en phonèmes, extrait les syllabes |
-| `engine.py` | Calcule les signatures de rime, regroupe par famille de consonnes |
+| `phonology.py` | Traits articulatoires (hauteur, antériorité, lieu, mode, voisement) |
+| `similarity.py` | Score de proximité entre deux syllabes, puis clustering |
+| `chains.py` | Détecte les chaînes multisyllabiques répétées |
+| `naming.py` | Donne à chaque groupe le nom de sa propre rime |
+| `sources/` | Transforme un lien YouTube en paroles (+ timings) |
 | `models.py` | Structures de données (Syllabe, Mot, Ligne, Vers) |
 | `visual.py` | Affichage terminal coloré en ANSI |
-| `analyzer.py` | Calcule densité, score multi, signatures uniques |
+| `metrics.py` | Densité, score multi, diversité, signatures |
 | `plots.py` | Visualisations statistiques (scatter, boxplot, heatmap) |
 
-**Montrer rapid un exemple de signature :**
-> "`rack` → noyau `AE1` + coda `K` → famille `PLO` → signature `AE_1_K` → label A"
+**Le point clé à faire passer :** la v1 comparait des chaînes de caractères.
+Deux syllabes rimaient si `"{voyelle}_{accent}_{coda}"` était *identique*. C'est
+un test binaire : `bit` et `beat` ne rimaient pas du tout.
+
+> "`beat` → noyau `IY1`, coda `T` ; `bit` → noyau `IH1`, coda `T`.
+> `IY` et `IH` diffèrent d'un seul trait (tension) → distance faible →
+> similarité 0.86 → même groupe, nommé `-eat`."
+
+La rime est un problème de **similarité** sur des séquences de phonèmes, pas
+d'égalité. Mesuré sur 13 verses annotés : F1 0.648 → 0.865.
 
 ---
 
@@ -89,8 +110,20 @@ Texte brut → Phonèmes (g2p_en) → Syllabes (syllabify) → Signatures → La
 **Visuel :** 2 lignes de paroles découpées en syllabes, avec flèches montrant les correspondances
 ---
 
-### SLIDE 9 — Démo live : Terminal coloré (9:00 – 11:00)
-**Pas de slide — on bascule sur le terminal**
+### SLIDE 9 — Démo live (9:00 – 11:00)
+**Pas de slide — on bascule sur le terminal, puis sur le navigateur**
+
+1. `make demo` — le verset coloré dans le terminal, avec la légende.
+2. `make serve` — l'interface : survol pour tracer un groupe, clic pour
+   l'isoler, changement de moteur en direct (`exact` = v1, `similarity`,
+   `chains`) sur les mêmes paroles.
+3. Coller un lien YouTube et analyser une chanson qui n'est pas dans le corpus.
+
+> **À tester la veille, sur la connexion de la salle.** C'est le seul point du
+> projet qui dépend d'un service extérieur. Si YouTube demande de prouver qu'on
+> n'est pas un robot, `RHYMEMAP_COOKIES_FROM_BROWSER=chrome make serve` règle le
+> problème. Avoir aussi un onglet déjà chargé en secours, et des paroles à
+> coller : le collage ne dépend d'aucun réseau.
 
 
 ---
@@ -127,7 +160,7 @@ Texte brut → Phonèmes (g2p_en) → Syllabes (syllabify) → Signatures → La
 
 - [ ] Vidéo YouTube intégrée dans Canva (tester le son)
 - [ ] Beat instrumental en fond pour le slide titre (5-10s)
-- [ ] Terminal prêt avec `python -m src.main` (testé, pas d'erreur)
+- [ ] Terminal prêt avec `python -m rhymemap.main` (testé, pas d'erreur)
 - [ ] Screenshot de backup du terminal coloré
 - [ ] Graphiques matplotlib exportés en PNG et insérés dans Canva
 - [ ] Répétition complète en 15 min (chronométrer)

@@ -1,74 +1,65 @@
+"""CLI: analyse a lyrics CSV and write the metrics table.
+
+    python -m scripts.generate_stats [--input CSV] [--output CSV]
+"""
+
+from __future__ import annotations
+
+import argparse
 import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from pathlib import Path
 
-import pandas as pd
-from collections import defaultdict
-from src.phonetics import process_verse
-from src.engine import assign_rhyme_labels, get_syllable_signature
+from rhymemap.analyzer import DEFAULT_DATASET, DatasetError, analyze_dataset
+from rhymemap.cache import flush_all
+from rhymemap.labeling import ENGINE_CHOICES, ENGINE_HELP, ENGINE_SIMILARITY
+from rhymemap.metrics import CSV_COLUMNS
 
-def compute_metrics(verse):
-    total_syllables = 0
-    rhyming_syllables = 0
-    signature_counts = defaultdict(int)
-    
-    for line in verse.lines:
-        for word in line.words:
-            for syl in word.syllables:
-                total_syllables += 1
-                if syl.rhyme_label:
-                    rhyming_syllables += 1
-                sig = get_syllable_signature(syl)
-                if sig:
-                    signature_counts[sig] += 1
-    
-    density = (rhyming_syllables / total_syllables * 100) if total_syllables else 0
-    # Diversité des signatures (nombre de signatures uniques / total syllabes) * 100
-    diversity = (len(signature_counts) / total_syllables * 100) if total_syllables else 0
-    
-    return {
-        'density': round(density, 1),
-        'multi': round(diversity, 1),   # on garde le nom 'multi' pour compatibilité
-        'signatures': len(signature_counts),
-        'syllables': total_syllables
-    }
 
-def main():
-    df = pd.read_csv('dataset/lyrics_raw.csv')
-    
-    # Utiliser la colonne 'artist_verses' si elle existe, sinon 'raw_lyrics'
-    if 'artist_verses' in df.columns:
-        lyrics_col = 'artist_verses'
-    else:
-        lyrics_col = 'raw_lyrics'
-    
-    results = []
-    for idx, row in df.iterrows():
-        track = row['track_name']
-        artist = row['artist']
-        lyrics = row[lyrics_col]
-        if pd.isna(lyrics) or not isinstance(lyrics, str):
-            continue
-        try:
-            verse = process_verse(lyrics, artist=artist)
-            assign_rhyme_labels(verse, min_occurrences=3, only_terminal=True)
-            metrics = compute_metrics(verse)
-            results.append({
-                'Track Name': track,
-                'Artist': artist,
-                'Density': metrics['density'],
-                'Multi': metrics['multi'],
-                'Signatures': metrics['signatures'],
-                'Syll.': metrics['syllables']
-            })
-            print(f"✅ {track} - Density: {metrics['density']}% - Multi: {metrics['multi']}%")
-        except Exception as e:
-            print(f"❌ Erreur sur {track}: {e}")
-    
-    os.makedirs('data', exist_ok=True)
-    out_df = pd.DataFrame(results)
-    out_df.to_csv('data/stats.csv', index=False)
-    print(f"\n📁 Fichier sauvegardé : data/stats.csv ({len(results)} morceaux)")
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--input", "-i", default=DEFAULT_DATASET, help=f"input lyrics CSV (default: {DEFAULT_DATASET})")
+    parser.add_argument("--output", "-o", default="data/stats.csv", help="output metrics CSV (default: data/stats.csv)")
+    parser.add_argument("--min-occurrences", type=int, default=3, help="minimum times a signature must appear (default: 3)")
+    parser.add_argument("--tail-window", type=int, default=None, help="only consider the last N syllables of each line")
+    parser.add_argument("--only-terminal", action="store_true", help="only consider line-final syllables (end rhyme)")
+    parser.add_argument("--max-rows", type=int, default=None, help="stop after N rows")
+    parser.add_argument("--engine", "-e", default=ENGINE_SIMILARITY, choices=ENGINE_CHOICES,
+                        help="; ".join(f"{k}: {v}" for k, v in ENGINE_HELP.items()))
+    parser.add_argument("--quiet", "-q", action="store_true", help="suppress per-track progress")
+    return parser
 
-if __name__ == '__main__':
-    main()
+
+def main(argv=None) -> int:
+    args = build_parser().parse_args(argv)
+
+    try:
+        rows = analyze_dataset(
+            args.input,
+            min_occurrences=args.min_occurrences,
+            tail_window=args.tail_window,
+            only_terminal=args.only_terminal,
+            max_rows=args.max_rows,
+            progress=not args.quiet,
+            engine=args.engine,
+        )
+    except DatasetError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+
+    if not rows:
+        print(f"error: no usable rows in {args.input}", file=sys.stderr)
+        return 1
+
+    import pandas as pd
+
+    output = Path(args.output)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows)[CSV_COLUMNS].to_csv(output, index=False)
+    flush_all()
+
+    print(f"\nwrote {output} ({len(rows)} tracks)")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

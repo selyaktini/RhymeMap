@@ -1,0 +1,237 @@
+{
+  "cluster_threshold": {
+    "current_default": 0.78,
+    "rows": [
+      {
+        "value": 0.6,
+        "pairwise_f1": 0.5305,
+        "bcubed_f1": 0.8646,
+        "mean_groups": 2.8
+      },
+      {
+        "value": 0.66,
+        "pairwise_f1": 0.5598,
+        "bcubed_f1": 0.8828,
+        "mean_groups": 3.1
+      },
+      {
+        "value": 0.7,
+        "pairwise_f1": 0.6667,
+        "bcubed_f1": 0.9048,
+        "mean_groups": 3.4
+      },
+      {
+        "value": 0.74,
+        "pairwise_f1": 0.8372,
+        "bcubed_f1": 0.9324,
+        "mean_groups": 3.8
+      },
+      {
+        "value": 0.78,
+        "pairwise_f1": 0.8297,
+        "bcubed_f1": 0.9241,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.82,
+        "pairwise_f1": 0.8288,
+        "bcubed_f1": 0.9254,
+        "mean_groups": 4.8
+      },
+      {
+        "value": 0.86,
+        "pairwise_f1": 0.7647,
+        "bcubed_f1": 0.8978,
+        "mean_groups": 5.2
+      },
+      {
+        "value": 0.9,
+        "pairwise_f1": 0.7024,
+        "bcubed_f1": 0.8654,
+        "mean_groups": 5.3
+      },
+      {
+        "value": 0.94,
+        "pairwise_f1": 0.6605,
+        "bcubed_f1": 0.8553,
+        "mean_groups": 5.2
+      }
+    ],
+    "best_by_bcubed": {
+      "value": 0.74,
+      "pairwise_f1": 0.8372,
+      "bcubed_f1": 0.9324,
+      "mean_groups": 3.8
+    }
+  },
+  "onset_identity_penalty": {
+    "current_default": 0.35,
+    "rows": [
+      {
+        "value": 0.0,
+        "pairwise_f1": 0.7966,
+        "bcubed_f1": 0.9195,
+        "mean_groups": 4.4
+      },
+      {
+        "value": 0.15,
+        "pairwise_f1": 0.8255,
+        "bcubed_f1": 0.9283,
+        "mean_groups": 4.5
+      },
+      {
+        "value": 0.25,
+        "pairwise_f1": 0.8155,
+        "bcubed_f1": 0.9205,
+        "mean_groups": 4.5
+      },
+      {
+        "value": 0.35,
+        "pairwise_f1": 0.8297,
+        "bcubed_f1": 0.9241,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.5,
+        "pairwise_f1": 0.8333,
+        "bcubed_f1": 0.926,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.65,
+        "pairwise_f1": 0.8482,
+        "bcubed_f1": 0.9293,
+        "mean_groups": 4.7
+      }
+    ],
+    "best_by_bcubed": {
+      "value": 0.65,
+      "pairwise_f1": 0.8482,
+      "bcubed_f1": 0.9293,
+      "mean_groups": 4.7
+    }
+  },
+  "nucleus": {
+    "current_default": 0.6,
+    "rows": [
+      {
+        "value": 0.4,
+        "pairwise_f1": 0.7965,
+        "bcubed_f1": 0.9106,
+        "mean_groups": 4.5
+      },
+      {
+        "value": 0.5,
+        "pairwise_f1": 0.823,
+        "bcubed_f1": 0.9247,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.6,
+        "pairwise_f1": 0.8297,
+        "bcubed_f1": 0.9241,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.7,
+        "pairwise_f1": 0.8653,
+        "bcubed_f1": 0.9424,
+        "mean_groups": 4.2
+      },
+      {
+        "value": 0.8,
+        "pairwise_f1": 0.8425,
+        "bcubed_f1": 0.9374,
+        "mean_groups": 3.9
+      }
+    ],
+    "best_by_bcubed": {
+      "value": 0.7,
+      "pairwise_f1": 0.8653,
+      "bcubed_f1": 0.9424,
+      "mean_groups": 4.2
+    }
+  },
+  "coda": {
+    "current_default": 0.3,
+    "rows": [
+      {
+        "value": 0.1,
+        "pairwise_f1": 0.8016,
+        "bcubed_f1": 0.9154,
+        "mean_groups": 3.7
+      },
+      {
+        "value": 0.2,
+        "pairwise_f1": 0.8281,
+        "bcubed_f1": 0.9285,
+        "mean_groups": 3.8
+      },
+      {
+        "value": 0.3,
+        "pairwise_f1": 0.8297,
+        "bcubed_f1": 0.9241,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.4,
+        "pairwise_f1": 0.8,
+        "bcubed_f1": 0.9165,
+        "mean_groups": 4.7
+      },
+      {
+        "value": 0.5,
+        "pairwise_f1": 0.7319,
+        "bcubed_f1": 0.8969,
+        "mean_groups": 4.6
+      }
+    ],
+    "best_by_bcubed": {
+      "value": 0.2,
+      "pairwise_f1": 0.8281,
+      "bcubed_f1": 0.9285,
+      "mean_groups": 3.8
+    }
+  },
+  "stress": {
+    "current_default": 0.1,
+    "rows": [
+      {
+        "value": 0.0,
+        "pairwise_f1": 0.8261,
+        "bcubed_f1": 0.9174,
+        "mean_groups": 4.5
+      },
+      {
+        "value": 0.05,
+        "pairwise_f1": 0.7932,
+        "bcubed_f1": 0.9118,
+        "mean_groups": 4.5
+      },
+      {
+        "value": 0.1,
+        "pairwise_f1": 0.8297,
+        "bcubed_f1": 0.9241,
+        "mean_groups": 4.6
+      },
+      {
+        "value": 0.2,
+        "pairwise_f1": 0.8361,
+        "bcubed_f1": 0.9315,
+        "mean_groups": 4.2
+      },
+      {
+        "value": 0.3,
+        "pairwise_f1": 0.7863,
+        "bcubed_f1": 0.9173,
+        "mean_groups": 3.8
+      }
+    ],
+    "best_by_bcubed": {
+      "value": 0.2,
+      "pairwise_f1": 0.8361,
+      "bcubed_f1": 0.9315,
+      "mean_groups": 4.2
+    }
+  }
+}

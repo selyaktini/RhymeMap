@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rhymemapper"
+version = "2.0.0"
+description = "Phonetic rhyme-scheme analysis for rap lyrics"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+    "g2p_en",
+    "syllabify",
+    "nltk",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "scikit-learn",
+    "scipy",
+]
+
+[project.scripts]
+rhymemap = "rhymemap.main:main"
+
+# Only the library ships. `analysis` and `scripts` are repository tooling, run
+# from a clone as `python -m scripts.serve_web`; installing them would put two
+# more generic top-level names into site-packages, which is the same collision
+# the src/ -> rhymemap/ rename existed to remove.
+#
+# The `find` directive rather than an explicit list: an explicit `packages = `
+# does not recurse, so it silently shipped a wheel with rhymemap/sources/ -- the
+# entire song-loading layer -- missing.
+[tool.setuptools.packages.find]
+include = ["rhymemap*"]
+namespaces = false
+
+# The generated Darija word list is data the engine cannot work without, so it
+# ships inside the package rather than beside it. The 61 MB master lexicon it
+# comes from stays in dataset/, in the repository only.
+[tool.setuptools.package-data]
+rhymemap = ["data/*.txt"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = [
+    "E501",   # long lines are handled by line-length, not enforced in docstrings
+    "B008",   # function calls in argument defaults are not used here
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E741"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["rhymemap", "analysis", "scripts"]

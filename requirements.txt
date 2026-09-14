@@ -1,7 +1,22 @@
-g2p_en
-syllabify
+# Core phonetics
+#
+# g2p_en is NOT listed here: it declares a dependency on `distance`, whose
+# setup.py uses an attribute setuptools removed in v60, so `pip install g2p_en`
+# fails on any modern toolchain. g2p_en never imports `distance` -- it only uses
+# nltk, numpy and inflect -- so it is installed with --no-deps by `make install`
+# and its real dependencies are listed below. See the install step in
+# .github/workflows/ci.yml for the same two lines.
+syllabify        # CMUdict-backed syllable splitting
+nltk             # corpora used by g2p_en (fetched by `make install`)
+inflect          # g2p_en dependency
+numpy            # g2p_en dependency, and used throughout the analysis
+
+# Song ingestion
+yt-dlp           # reads YouTube captions for lyrics + word timings
+
+# Data and analysis
 pandas
 matplotlib
 seaborn
 scikit-learn
-numpy
+scipy            # hierarchical clustering for the artist dendrogram

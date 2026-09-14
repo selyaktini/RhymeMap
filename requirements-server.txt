@@ -1,0 +1,14 @@
+# Runtime dependencies for the web server only (scripts/serve_web).
+#
+# The analysis engine needs numpy and scipy; the corpus tooling, plotting and
+# evaluation in requirements.txt do not run here. Leaving pandas, matplotlib,
+# seaborn and scikit-learn out of the image saves ~157 MB, which matters on a
+# free tier that sleeps and has to cold-start.
+#
+# g2p_en is installed separately with --no-deps; see the Dockerfile.
+syllabify        # CMUdict-backed syllable splitting
+nltk             # corpora used by g2p_en
+inflect          # g2p_en dependency
+numpy            # feature vectors and window matrices
+scipy            # agglomerative clustering (linkage / fcluster / squareform)
+yt-dlp           # reads YouTube captions for lyrics + word timings

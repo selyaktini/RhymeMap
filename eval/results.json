@@ -1,0 +1,233 @@
+[
+  {
+    "name": "all-singletons",
+    "description": "no grouping at all",
+    "pairwise": {
+      "precision": 1.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    "bcubed": {
+      "precision": 1.0,
+      "recall": 0.4888,
+      "f1": 0.6567
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.0,
+      "Eminem": 0.0,
+      "J. Cole": 0.0,
+      "Kendrick Lamar": 0.0
+    },
+    "mean_groups": 9.5
+  },
+  {
+    "name": "all-one-group",
+    "description": "every line in a single group",
+    "pairwise": {
+      "precision": 0.1679,
+      "recall": 1.0,
+      "f1": 0.2875
+    },
+    "bcubed": {
+      "precision": 0.3658,
+      "recall": 1.0,
+      "f1": 0.5357
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.2614,
+      "Eminem": 0.2892,
+      "J. Cole": 0.2675,
+      "Kendrick Lamar": 0.3226
+    },
+    "mean_groups": 1.0
+  },
+  {
+    "name": "exact",
+    "description": "v1 baseline: vowel + stress + exact coda must match",
+    "pairwise": {
+      "precision": 0.7263,
+      "recall": 0.5847,
+      "f1": 0.6479
+    },
+    "bcubed": {
+      "precision": 0.934,
+      "recall": 0.7985,
+      "f1": 0.861
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.6842,
+      "Eminem": 0.4941,
+      "J. Cole": 0.5,
+      "Kendrick Lamar": 0.931
+    },
+    "mean_groups": 5.2
+  },
+  {
+    "name": "+consonant classes",
+    "description": "coda consonants replaced by natural class",
+    "pairwise": {
+      "precision": 0.7556,
+      "recall": 0.5763,
+      "f1": 0.6538
+    },
+    "bcubed": {
+      "precision": 0.9381,
+      "recall": 0.7748,
+      "f1": 0.8487
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.6842,
+      "Eminem": 0.5,
+      "J. Cole": 0.5455,
+      "Kendrick Lamar": 0.9123
+    },
+    "mean_groups": 5.4
+  },
+  {
+    "name": "+vowel space",
+    "description": "articulatory vowel distance, coda ignored",
+    "pairwise": {
+      "precision": 0.5989,
+      "recall": 0.9237,
+      "f1": 0.7267
+    },
+    "bcubed": {
+      "precision": 0.8494,
+      "recall": 0.9546,
+      "f1": 0.8989
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.8205,
+      "Eminem": 0.7288,
+      "J. Cole": 0.5915,
+      "Kendrick Lamar": 0.8056
+    },
+    "mean_groups": 3.3
+  },
+  {
+    "name": "+feature coda",
+    "description": "vowel space plus feature-aligned coda distance",
+    "pairwise": {
+      "precision": 0.8346,
+      "recall": 0.8983,
+      "f1": 0.8653
+    },
+    "bcubed": {
+      "precision": 0.9479,
+      "recall": 0.937,
+      "f1": 0.9424
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.8421,
+      "Eminem": 0.8283,
+      "J. Cole": 0.875,
+      "Kendrick Lamar": 0.9333
+    },
+    "mean_groups": 4.2
+  },
+  {
+    "name": "-onset penalty",
+    "description": "full similarity, with the repetition penalty removed",
+    "pairwise": {
+      "precision": 0.7879,
+      "recall": 0.8814,
+      "f1": 0.832
+    },
+    "bcubed": {
+      "precision": 0.9327,
+      "recall": 0.9361,
+      "f1": 0.9344
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.8421,
+      "Eminem": 0.7755,
+      "J. Cole": 0.8235,
+      "Kendrick Lamar": 0.9206
+    },
+    "mean_groups": 4.0
+  },
+  {
+    "name": "+multisyllabic chains",
+    "description": "repeated multisyllabic spans, couplet locality window (gap 2)",
+    "pairwise": {
+      "precision": 0.8222,
+      "recall": 0.3136,
+      "f1": 0.454
+    },
+    "bcubed": {
+      "precision": 0.9494,
+      "recall": 0.6703,
+      "f1": 0.7858
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.5517,
+      "Eminem": 0.3333,
+      "J. Cole": 0.4828,
+      "Kendrick Lamar": 0.5333
+    },
+    "mean_groups": 6.4
+  },
+  {
+    "name": "chains (gap 4)",
+    "description": "chains with a four-line locality window",
+    "pairwise": {
+      "precision": 0.8868,
+      "recall": 0.3983,
+      "f1": 0.5497
+    },
+    "bcubed": {
+      "precision": 0.967,
+      "recall": 0.7092,
+      "f1": 0.8183
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.5,
+      "Eminem": 0.3667,
+      "J. Cole": 0.7429,
+      "Kendrick Lamar": 0.6667
+    },
+    "mean_groups": 6.3
+  },
+  {
+    "name": "chains (gap 8)",
+    "description": "chains with an eight-line locality window",
+    "pairwise": {
+      "precision": 0.8696,
+      "recall": 0.339,
+      "f1": 0.4878
+    },
+    "bcubed": {
+      "precision": 0.967,
+      "recall": 0.6956,
+      "f1": 0.8091
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.5,
+      "Eminem": 0.3667,
+      "J. Cole": 0.625,
+      "Kendrick Lamar": 0.5455
+    },
+    "mean_groups": 6.5
+  },
+  {
+    "name": "chains (no locality)",
+    "description": "chains with the locality constraint disabled",
+    "pairwise": {
+      "precision": 0.8667,
+      "recall": 0.3305,
+      "f1": 0.4785
+    },
+    "bcubed": {
+      "precision": 0.967,
+      "recall": 0.6932,
+      "f1": 0.8075
+    },
+    "by_artist_pairwise_f1": {
+      "Drake": 0.5,
+      "Eminem": 0.3667,
+      "J. Cole": 0.5806,
+      "Kendrick Lamar": 0.5455
+    },
+    "mean_groups": 6.5
+  }
+]

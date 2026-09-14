@@ -1,0 +1,101 @@
+{
+  "engine": "similarity",
+  "n": 12,
+  "features": [
+    "density",
+    "multi",
+    "diversity",
+    "signatures",
+    "syllables"
+  ],
+  "accuracy": 0.0,
+  "baselines": {
+    "chance": 0.25,
+    "majority_class": 0.25,
+    "class_counts": {
+      "Eminem": 3,
+      "Kendrick Lamar": 3,
+      "J. Cole": 3,
+      "Drake": 3
+    }
+  },
+  "artists": [
+    "Drake",
+    "Eminem",
+    "J. Cole",
+    "Kendrick Lamar"
+  ],
+  "confusion": [
+    [
+      0,
+      1,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      2
+    ],
+    [
+      2,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      1,
+      2,
+      0
+    ]
+  ],
+  "classifiers": [
+    {
+      "classifier": "logistic regression",
+      "leave_one_out": 0.0,
+      "stratified_kfold": 0.0833,
+      "folds": 3
+    },
+    {
+      "classifier": "1-nearest neighbour",
+      "leave_one_out": 0.0833,
+      "stratified_kfold": 0.0833,
+      "folds": 3
+    },
+    {
+      "classifier": "random forest",
+      "leave_one_out": 0.0,
+      "stratified_kfold": 0.0833,
+      "folds": 3
+    }
+  ],
+  "feature_anova": [
+    {
+      "feature": "density",
+      "F": 1.29,
+      "p": 0.3425
+    },
+    {
+      "feature": "multi",
+      "F": 1.484,
+      "p": 0.2907
+    },
+    {
+      "feature": "diversity",
+      "F": 0.206,
+      "p": 0.8896
+    },
+    {
+      "feature": "signatures",
+      "F": 0.2,
+      "p": 0.8935
+    },
+    {
+      "feature": "syllables",
+      "F": 0.09,
+      "p": 0.9633
+    }
+  ]
+}
